@@ -3,9 +3,14 @@
 import os
 import sys
 
+from dotenv import load_dotenv
+
 
 def main():
     """Run administrative tasks."""
+    # Load environment variables from .env file
+    load_dotenv()
+
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "ulibrary_api.settings")
     try:
         from django.core.management import execute_from_command_line
