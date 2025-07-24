@@ -102,7 +102,7 @@ The project is configured to run the full stack (Django backend, React frontend,
 2.  **Create Docker Environment File:** Create a file named `.env.docker` in the `backend` directory. This file will override settings from `.env` for the containerized environment.
     ```.env
     # backend/.env.docker
-    DATABASE_URL=postgres://username:database_password@db_name:5432/ulibrary_db # Connects backend to db service
+    DATABASE_URL=postgres://username:database_password@db:5432/ulibrary_db # Connects backend to db service
     POSTGRES_DB=<database_name>
     POSTGRES_USER=<database_username>
     POSTGRES_PASSWORD=<database_password>
