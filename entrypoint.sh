@@ -25,7 +25,8 @@ set -e
 # A simple sleep is used here for demonstration. In production, you might
 # use a more robust script like wait-for-it.sh.
 echo "Waiting for database..."
-sleep 35
+# Wait 15 seconds to ensure the database is up and running.
+sleep 15
 
 # Run Django management commands
 echo "Applying database migrations..."

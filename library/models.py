@@ -1,11 +1,26 @@
+"""
+library/models.py
+
+This file is part of the University Library project.
+It contains the Django data models for the 'library' application, defining
+the structure of the User, Book, and Checkout tables in the database.
+
+Author: Raul Berrios
+"""
 from django.contrib.auth.models import AbstractUser, UserManager
 from django.db import models
 from django.db.models import Q
 from django.utils.translation import gettext_lazy as _
 
 
-# Resolve Bug: When I'm creating a superuser, the default role assigned was 'student' instead of 'librarian'
 class CustomUserManager(UserManager):
+    """
+    Custom user manager for the User model.
+
+    This manager overrides the default `create_superuser` method to ensure
+    that any superuser created has their role automatically set to 'librarian'.
+    This resolves an issue where superusers were defaulting to the 'student' role.
+    """
     def create_superuser(self, username, email=None, password=None, **extra_fields):
         """
         Create and save a SuperUser with the given email and password,
@@ -26,6 +41,15 @@ class CustomUserManager(UserManager):
 
 
 class User(AbstractUser):
+    """
+    Custom User model for the application.
+
+    Extends Django's AbstractUser to include a `role` field, which can be
+    either 'student' or 'librarian'. This model is the central point for
+    user authentication and role-based permissions. It uses the
+    CustomUserManager to handle user creation.
+    """
+
     ROLE_CHOICES = (
         ("student", "Student"),
         ("librarian", "Librarian"),
@@ -57,6 +81,13 @@ class User(AbstractUser):
 
 
 class Book(models.Model):
+    """
+    Represents a single book in the library's collection.
+
+    Stores details about the book, including its title, author, publication
+    year, genre, and the current number of copies available in stock.
+    """
+
     title = models.CharField(max_length=200)
     author = models.CharField(max_length=200)
     published_year = models.IntegerField()
@@ -68,6 +99,15 @@ class Book(models.Model):
 
 
 class Checkout(models.Model):
+    """
+    Represents a checkout record for a book by a student.
+
+    This model links a student (User) to a book they have checked out.
+    It includes the checkout date and an optional return date. A database
+    constraint (`unique_active_checkout`) prevents a student from checking
+    out the same book more than once if it hasn't been returned yet.
+    """
+
     student = models.ForeignKey(
         User,
         on_delete=models.CASCADE,

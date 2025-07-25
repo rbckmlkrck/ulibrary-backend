@@ -59,7 +59,8 @@
     ```
 
 8.  **Run the development server:**
-    Use `runserver_plus` from the `django-extensions` library. This provides a superior development server that automatically reloads when you change any project file. I've renumbered this step.
+    Use `runserver_plus` from the `django-extensions` library. This provides a superior development server that automatically reloads when you change any project file.
+    `runserver_plus` replaces the default server.
     ```bash
     python manage.py runserver_plus
     ```
@@ -117,8 +118,8 @@ The project is configured to run the full stack (Django backend, React frontend,
     - Create a superuser (`username: admin`, `password: My4Dm1n!2025`).
     - Seed the database with sample data.
 
-    - The **React Frontend** will be available at `http://localhost` (on port 80).
-    - The **Django API** will be available at `http://localhost:8000`.
+    - The **React Frontend** will be available at `http://localhost` or `http:<your_host_ip/domain_name>` (on port 80).
+    - The **Django API** will be available at `http://localhost:8000` or `http:<your_host_ip/domain_name>:8000`>.
 
     You can view the logs from all running containers with `docker-compose logs -f`.
 
@@ -127,4 +128,22 @@ The project is configured to run the full stack (Django backend, React frontend,
     ```bash
     docker-compose down -v
     ```
-    You can then run `docker-compose up --build` to start fresh.
+
+## Makefile for Docker Management
+
+For convenience, a `Makefile` is provided in `backend/Makefile.root` to simplify common Docker Compose commands. To use it, you first need to copy it from the `backend` directory to your project's root directory and rename it to `Makefile`.
+
+```bash
+# From the project root directory
+cp backend/Makefile.root ./Makefile
+```
+
+Once the `Makefile` is in your project root, you can use the following commands from that directory:
+
+-   `make build`: Builds (or rebuilds) and starts all services in detached mode.
+-   `make run`: Starts the services in detached mode.
+-   `make logs`: Follows the logs from all running containers.
+-   `make stop`: Stops all running services.
+-   `make ps`: Lists the running containers for this project.
+-   `make clean`: Stops and removes all containers, networks, and volumes for a clean start.
+    You can then run `make build` to start fresh.

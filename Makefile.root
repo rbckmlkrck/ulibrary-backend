@@ -1,0 +1,59 @@
+##  Copyright (C) 2025 Raul Berrios
+##  
+##  This program is free software: you can redistribute it and/or modify
+##  it under the terms of the GNU Affero General Public License as
+##  published by the Free Software Foundation, either version 3 of the
+##  License, or (at your option) any later version.
+##  
+##  This program is distributed in the hope that it will be useful,
+##  but WITHOUT ANY WARRANTY; without even the implied warranty of
+##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+##  GNU Affero General Public License for more details.
+##  
+##  You should have received a copy of the GNU Affero General Public License
+##  along with this program.  If not, see <https:## www.gnu.org/licenses/>.
+##  Please copy this file to your root directory.
+##  
+
+# Use the DOCKER_COMPOSE command to build/stop/start the containers.
+# Sample: 
+#   make build -- to build the containers
+#   make logs  -- to display the containers logs
+#   make run   -- to start the containers
+#   make stop  -- to stop the containers
+#   make clean -- to clean up the containers
+
+
+DOCKER_COMPOSE := docker compose
+DOCKER := docker
+
+.PHONY: all build
+
+all: build
+
+# Build and start the Docker containers.
+build:
+	@echo "Building Docker containers..."
+	$(DOCKER_COMPOSE) up --build -d
+
+logs:
+    @echo "Displaying container logs..."
+    $(DOCKER_COMPOSE) logs -f
+
+run:
+    @echo "Running Docker containers..."
+    $(DOCKER_COMPOSE) up -d
+
+stop:
+    @echo "Stopping Docker containers..."
+    $(DOCKER_COMPOSE) down
+
+ps:
+    @echo "Displaying Docker containers..."
+    $(DOCKER) ps
+
+# Clean up containers
+clean:
+	@echo "Cleaning up containers..."
+	$(DOCKER_COMPOSE) down -v
+	@echo "Cleanup complete."
