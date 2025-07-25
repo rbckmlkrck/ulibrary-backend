@@ -109,7 +109,7 @@ The project is configured to run the full stack (Django backend, React frontend,
     ```
 3.  **Build and run the containers:** From the `backend` directory, run the following command.
     ```bash
-    docker-compose up --build
+    docker-compose up --build -d
     ```
     This command uses the copied `docker-compose.yml` file to build and start all services. If you change your models, remember to run `python manage.py makemigrations` on your host machine before running this command. The backend container's entrypoint script will automatically:
     - Wait for the database to be ready.
@@ -119,6 +119,8 @@ The project is configured to run the full stack (Django backend, React frontend,
 
     - The **React Frontend** will be available at `http://localhost` (on port 80).
     - The **Django API** will be available at `http://localhost:8000`.
+
+    You can view the logs from all running containers with `docker-compose logs -f`.
 
 4.  **Resetting the Environment:**
     To completely stop and remove all containers, networks, and the database volume (for a clean start), run the following command from the project root:
