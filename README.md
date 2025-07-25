@@ -102,15 +102,20 @@ The project is configured to run the full stack (Django backend, React frontend,
 2.  **Create Docker Environment File:** Create a file named `.env.docker` in the `backend` directory. This file will override settings from `.env` for the containerized environment.
     ```.env
     # backend/.env.docker
-    DATABASE_URL=postgres://username:database_password@db:5432/ulibrary_db # Connects backend to db service
-    POSTGRES_DB=<database_name>
-    POSTGRES_USER=<database_username>
-    POSTGRES_PASSWORD=<database_password>
+    DATABASE_URL=postgres://ulibrary:Ulibrary!2025@db:5432/ulibrary_db # Connects backend to db service
+    POSTGRES_DB=ulibrary_db
+    POSTGRES_USER=ulibrary
+    POSTGRES_PASSWORD=Ulibrary!2025
     ```
-3.  **Build and run the containers:** From the `backend` directory, run the following command. This will build and start all services.
+3.  **Build and run the containers:** From the `backend` directory, run the following command.
     ```bash
     docker-compose up --build
     ```
-    This command will build the images for the frontend and backend, pull the PostgreSQL image, and start all services.
+    This command builds and starts all services. The backend container's entrypoint script will automatically:
+    - Wait for the database to be ready.
+    - Apply database migrations.
+    - Create a superuser (`username: admin`, `password: My4Dm1n!2025`).
+    - Seed the database with sample data.
+
     - The **React Frontend** will be available at `http://localhost:3000`.
     - The **Django API** will be available at `http://localhost:8000`.
