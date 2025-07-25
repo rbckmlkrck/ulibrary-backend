@@ -25,7 +25,7 @@ set -e
 # A simple sleep is used here for demonstration. In production, you might
 # use a more robust script like wait-for-it.sh.
 echo "Waiting for database..."
-sleep 10
+sleep 35
 
 # Run Django management commands
 echo "Applying database migrations..."
@@ -44,7 +44,7 @@ else:
 EOF
 
 echo "Seeding database with initial data..."
-python manage.py seed_data
+python manage.py seed_data --clear
 
 echo "Database setup complete. Starting server."
 
