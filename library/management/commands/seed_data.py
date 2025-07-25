@@ -41,19 +41,33 @@ class Command(BaseCommand):
 
         # --- Create Users ---
         self.stdout.write(f'Creating {num_users} users...')
-        users = []
+        created_users_count = 0
         for _ in range(num_users):
-            profile = fake.profile()
-            user = User(
-                username=profile['username'],
-                first_name=fake.first_name(),
-                last_name=fake.last_name(),
-                email=profile['mail'],
-                role=random.choice(['student', 'student', 'student', 'librarian']) # 3:1 student to librarian ratio
-            )
-            user.set_password('password123') # Use a standard password for all seeded users
-            users.append(user)
-        User.objects.bulk_create(users)
+            try:
+                profile = fake.profile()
+                username = profile['username']
+
+                # Check if user already exists to avoid IntegrityError
+                # Fixes potential IntegrityError when creating users with the same username
+                # Docker containers may have the same random seed
+                if User.objects.filter(username=username).exists():
+                    self.stdout.write(self.style.WARNING(f"User '{username}' already exists. Skipping."))
+                    continue
+
+                user = User(
+                    username=username,
+                    first_name=fake.first_name(),
+                    last_name=fake.last_name(),
+                    email=profile['mail'],
+                    role=random.choice(['student', 'student', 'student', 'librarian']) # 3:1 student to librarian ratio
+                )
+                user.set_password('password123') # Use a standard password for all seeded users
+                user.save()
+                created_users_count += 1
+            except Exception as e:
+                # Handle other potential errors gracefully without stopping the script
+                self.stdout.write(self.style.ERROR(f"An error occurred while creating a user: {e}. Skipping."))
+                continue
 
         # --- Create Books ---
         self.stdout.write(f'Creating {num_books} books...')
@@ -64,4 +78,4 @@ class Command(BaseCommand):
         ]
         Book.objects.bulk_create(books)
 
-        self.stdout.write(self.style.SUCCESS(f'Successfully created {num_users} users and {num_books} books.'))
+        self.stdout.write(self.style.SUCCESS(f'Successfully created {created_users_count} new users and {num_books} books.'))
