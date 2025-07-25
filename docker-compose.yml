@@ -10,9 +10,8 @@ services:
 
   web: # Backend Service
     build: .
-    command: >
-      sh -c "python manage.py migrate &&
-             gunicorn ulibrary_api.wsgi:application --bind 0.0.0.0:8000"
+    entrypoint: /app/entrypoint.sh
+    command: gunicorn ulibrary_api.wsgi:application --bind 0.0.0.0:8000
     volumes:
       - .:/app
     ports:
