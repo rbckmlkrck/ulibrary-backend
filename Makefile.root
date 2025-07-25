@@ -37,20 +37,20 @@ build:
 	$(DOCKER_COMPOSE) up --build -d
 
 logs:
-    @echo "Displaying container logs..."
-    $(DOCKER_COMPOSE) logs -f
+	@echo "Displaying container logs..."
+	$(DOCKER_COMPOSE) logs -f
 
 run:
-    @echo "Running Docker containers..."
-    $(DOCKER_COMPOSE) up -d
+	@echo "Running Docker containers..."
+	$(DOCKER_COMPOSE) up -d
 
 stop:
-    @echo "Stopping Docker containers..."
-    $(DOCKER_COMPOSE) down
+	@echo "Stopping Docker containers..."
+	$(DOCKER_COMPOSE) down
 
 ps:
-    @echo "Displaying Docker containers..."
-    $(DOCKER) ps
+	@echo "Displaying Docker containers..."
+	$(DOCKER) ps
 
 # Clean up containers
 clean:
