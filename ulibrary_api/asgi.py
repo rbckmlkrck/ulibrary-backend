@@ -1,10 +1,15 @@
 """
-ASGI config for ulibrary_api project.
+ulibrary_api/asgi.py
 
-It exposes the ASGI callable as a module-level variable named ``application``.
+This file is part of the University Library project.
+It configures the ASGI entry-point for the application, allowing it to be
+served by ASGI-compliant web servers. It exposes the ASGI callable as a
+module-level variable named ``application``.
 
 For more information on this file, see
 https://docs.djangoproject.com/en/5.2/howto/deployment/asgi/
+
+Author: Raul Berrios
 """
 
 import os

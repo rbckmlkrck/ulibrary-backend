@@ -1,3 +1,13 @@
+"""
+library/management/commands/seed_data.py
+
+This file is part of the University Library project.
+It contains a Django management command to populate the database with
+sample data for testing and development purposes.
+
+Author: Raul Berrios
+"""
+import os
 import random
 from django.core.management.base import BaseCommand
 from django.db import transaction
@@ -6,13 +16,27 @@ from library.models import User, Book
 
 class Command(BaseCommand):
     """
-    Custom management command to seed the database with sample data.
+    A custom Django management command to seed the database with sample data.
+
+    This command creates a specified number of books and users (students and
+    librarians) using the Faker library. It supports clearing existing data
+    before seeding and avoids creating duplicate users.
+
+    Usage:
+        python manage.py seed_data
+        python manage.py seed_data --books 500 --users 100
+        python manage.py seed_data --clear
     """
     help = 'Seeds the database with sample data for books and users.'
 
     def add_arguments(self, parser):
         """
-        Adds command-line arguments for the command.
+        Adds command-line arguments to the command.
+
+        Arguments:
+            --books: The number of book records to create.
+            --users: The number of user records to create.
+            --clear: A flag to clear existing book and user data before seeding.
         """
         parser.add_argument('--books', type=int, help='The number of books to create.', default=200)
         parser.add_argument('--users', type=int, help='The number of users to create.', default=50)
@@ -22,6 +46,10 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         """
         The main logic for the command.
+
+        Executes the database seeding process within a single atomic transaction
+        to ensure data integrity. It handles data clearing, user creation,
+        and book creation.
         """
         self.stdout.write('Seeding database...')
 
@@ -38,6 +66,8 @@ class Command(BaseCommand):
             return
 
         fake = Faker()
+        # Use an environment variable for the seed password, with a default fallback.
+        seed_password = os.environ.get('SEED_USER_PASSWORD', 'password123')
 
         # --- Create Users ---
         self.stdout.write(f'Creating {num_users} users...')
@@ -47,9 +77,9 @@ class Command(BaseCommand):
                 profile = fake.profile()
                 username = profile['username']
 
-                # Check if user already exists to avoid IntegrityError
-                # Fixes potential IntegrityError when creating users with the same username
-                # Docker containers may have the same random seed
+                # Check if user already exists to avoid IntegrityError.
+                # This can happen if the Faker library generates a duplicate username,
+                # especially when running in environments with a fixed random seed.
                 if User.objects.filter(username=username).exists():
                     self.stdout.write(self.style.WARNING(f"User '{username}' already exists. Skipping."))
                     continue
@@ -61,7 +91,7 @@ class Command(BaseCommand):
                     email=profile['mail'],
                     role=random.choice(['student', 'student', 'student', 'librarian']) # 3:1 student to librarian ratio
                 )
-                user.set_password('password123') # Use a standard password for all seeded users
+                user.set_password(seed_password)
                 user.save()
                 created_users_count += 1
             except Exception as e:

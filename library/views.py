@@ -1,3 +1,12 @@
+"""
+library/views.py
+
+This file is part of the University Library project.
+It contains the ViewSets that define the API endpoints for the library app,
+handling the logic for user, book, and checkout management.
+
+Author: Raul Berrios
+"""
 from django.db import transaction, IntegrityError
 from django.utils import timezone
 from django.db.models import F
@@ -33,8 +42,11 @@ def current_user_api(request):
 
 class UserViewSet(viewsets.ModelViewSet):
     """
-    API endpoint that allows users to be viewed or edited.
-    Only Librarians can create new users.
+    Provides the API endpoints for viewing and editing users.
+
+    Permissions:
+    - Superusers and Librarians can perform any action (list, create, retrieve,
+      update, delete).
     """
     queryset = User.objects.all()
     serializer_class = UserSerializer
@@ -43,9 +55,10 @@ class UserViewSet(viewsets.ModelViewSet):
 
 class BookViewSet(viewsets.ModelViewSet):
     """
-    API endpoint for books.
-    - All authenticated users can list/search books.
-    - Only Librarians can create, update, or delete books.
+    Provides API endpoints for managing books in the library.
+
+    Allows for listing, searching, creating, updating, and deleting books.
+    Access is controlled based on the user's role.
     """
     queryset = Book.objects.all()
     serializer_class = BookSerializer
@@ -53,6 +66,12 @@ class BookViewSet(viewsets.ModelViewSet):
     search_fields = ['title', 'author', 'genre']
 
     def get_permissions(self):
+        """
+        Dynamically sets permissions based on the action.
+
+        - Write actions (create, update, etc.) are restricted to Librarians.
+        - Read actions (list, retrieve) are allowed for any authenticated user.
+        """
         if self.action in ['create', 'update', 'partial_update', 'destroy']:
             self.permission_classes = [IsLibrarian]
         else:
@@ -62,15 +81,24 @@ class BookViewSet(viewsets.ModelViewSet):
 
 class CheckoutViewSet(viewsets.ModelViewSet):
     """
-    API endpoint for checkouts.
-    - Students can create checkouts (request a book) and view their own checkouts.
-    - Librarians can view all checkouts and mark them as returned.
+    Provides API endpoints for managing book checkouts.
+
+    - **Students**: Can create new checkouts (i.e., check out a book) and
+      view their own active checkouts.
+    - **Librarians**: Can view all active checkouts across all students and
+      mark books as returned.
     """
     permission_classes = [IsAuthenticated]
     filter_backends = [filters.SearchFilter]
     search_fields = ['student__username', 'student__first_name', 'student__last_name', 'book__title']
 
     def get_queryset(self):
+        """
+        Dynamically filters the queryset based on the user's role.
+
+        - Librarians can see all active checkouts.
+        - Students can only see their own active checkouts.
+        """
         user = self.request.user
         if user.is_authenticated:
             if user.role == 'librarian':
@@ -82,6 +110,13 @@ class CheckoutViewSet(viewsets.ModelViewSet):
         return Checkout.objects.none()
 
     def get_serializer_class(self):
+        """
+        Returns the appropriate serializer class based on the action and user role.
+
+        - `CreateCheckoutSerializer` for the 'create' action.
+        - `CheckoutLibrarianSerializer` for Librarians on other actions.
+        - `CheckoutStudentSerializer` for Students on other actions.
+        """
         if self.action == 'create':
             return CreateCheckoutSerializer
 
@@ -92,6 +127,13 @@ class CheckoutViewSet(viewsets.ModelViewSet):
         return CheckoutStudentSerializer
 
     def create(self, request, *args, **kwargs):
+        """
+        Handles the creation of a new checkout record.
+
+        This method validates the request and wraps the creation logic in a
+        transaction to ensure atomicity. It also provides a user-friendly
+        error message if a student tries to check out a book they already have.
+        """
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         try:
@@ -105,7 +147,12 @@ class CheckoutViewSet(viewsets.ModelViewSet):
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
     def perform_create(self, serializer):
-        # This method is called when a student requests a book.
+        """
+        Performs the creation of a checkout and updates the book's stock.
+
+        This is called by `create` and executes within a database transaction.
+        It decrements the book's stock and saves the new checkout record.
+        """
         book = serializer.validated_data['book']
         with transaction.atomic():
             # Decrease book stock
@@ -116,7 +163,10 @@ class CheckoutViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['post'], permission_classes=[IsLibrarian])
     def return_book(self, request, pk=None):
         """
-        Action for a librarian to mark a book as returned.
+        Marks a checkout as returned. Only accessible by Librarians.
+
+        This action sets the `return_date` to the current time and increments
+        the corresponding book's stock count.
         """
         checkout = self.get_object()
         if checkout.return_date:

@@ -15,6 +15,7 @@
     SECRET_KEY='your-super-secret-key-here'
     DEBUG=True
     DATABASE_URL='postgres://ulibrary:Ulibrary!2025@localhost:5432/ulibrary_db'
+    SEED_USER_PASSWORD='your-secure-seed-password' # Optional: sets the password for seeded users
     CORS_ALLOWED_ORIGINS="http://localhost,http://localhost:3000,http://127.0.0.1:3000"
     ```
     **Note:** The project's `settings.py` needs to be configured to read this file (e.g., using `python-dotenv`). You should also add `.env` to your `.gitignore` file to keep secrets out of version control.
@@ -106,6 +107,7 @@ The project is configured to run the full stack (Django backend, React frontend,
     DATABASE_URL=postgres://ulibrary:Ulibrary!2025@db:5432/ulibrary_db # Connects backend to db service
     POSTGRES_DB=ulibrary_db
     POSTGRES_USER=ulibrary
+    SEED_USER_PASSWORD='your-secure-seed-password' # Optional: sets the password for seeded users
     POSTGRES_PASSWORD=Ulibrary!2025
     ```
 3.  **Build and run the containers:** From the `backend` directory, run the following command.
