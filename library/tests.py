@@ -1,3 +1,12 @@
+"""
+library/tests.py
+
+This file is part of the University Library project.
+It contains the test suite for the library API, covering user authentication,
+book management, and checkout processes using Django REST Framework's APITestCase.
+
+Author: Raul Berrios
+"""
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase

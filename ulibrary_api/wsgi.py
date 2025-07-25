@@ -1,10 +1,15 @@
 """
-WSGI config for ulibrary_api project.
+ulibrary_api/wsgi.py
 
-It exposes the WSGI callable as a module-level variable named ``application``.
+This file is part of the University Library project.
+It configures the WSGI entry-point for the application, allowing it to be
+served by WSGI-compliant web servers. It exposes the WSGI callable as a
+module-level variable named ``application``.
 
 For more information on this file, see
 https://docs.djangoproject.com/en/4.1/howto/deployment/wsgi/
+
+Author: Raul Berrios
 """
 
 import os
