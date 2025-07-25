@@ -6,30 +6,35 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data/
     env_file:
-      - .env.docker
+      - ./backend/.env.docker
+    # No 'ports' section means the database is only accessible
+    # to other services within the Docker network, not from the host.
 
-  web: # Backend Service
-    build: .
-    entrypoint: /app/entrypoint.sh
+  api: # Backend Service
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    entrypoint: ["sh", "/app/entrypoint.sh"]
     command: gunicorn ulibrary_api.wsgi:application --bind 0.0.0.0:8000
     volumes:
-      - .:/app
+      - ./backend:/app
     ports:
       - "8000:8000"
     env_file:
-      - .env          # Loads base config (like SECRET_KEY)
-      - .env.docker   # Overrides DB settings for Docker
+      - ./backend/.env          # Loads base config (like SECRET_KEY)
+      - ./backend/.env.docker   # Overrides DB settings for Docker
     depends_on:
       - db
 
   frontend: # Frontend Service
     build:
-      context: ../frontend
+      context: ./frontend
       dockerfile: Dockerfile
     ports:
-      - "3000:80"
+    # Map port 80 on the host to port 3000 in the container
+      - "80:3000"
     depends_on:
-      - web
+      - api
 
 volumes:
   postgres_data:

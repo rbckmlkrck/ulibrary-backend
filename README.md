@@ -14,8 +14,8 @@
     # backend/.env
     SECRET_KEY='your-super-secret-key-here'
     DEBUG=True
-    DATABASE_URL='postgres://user:password@localhost:5432/ulibrary_db'
-    CORS_ALLOWED_ORIGINS="http://localhost:3000,http://127.0.0.1:3000"
+    DATABASE_URL='postgres://ulibrary:Ulibrary!2025@localhost:5432/ulibrary_db'
+    CORS_ALLOWED_ORIGINS="http://localhost,http://localhost:3000,http://127.0.0.1:3000"
     ```
     **Note:** The project's `settings.py` needs to be configured to read this file (e.g., using `python-dotenv`). You should also add `.env` to your `.gitignore` file to keep secrets out of version control.
 
@@ -111,11 +111,18 @@ The project is configured to run the full stack (Django backend, React frontend,
     ```bash
     docker-compose up --build
     ```
-    This command builds and starts all services. The backend container's entrypoint script will automatically:
+    This command uses the copied `docker-compose.yml` file to build and start all services. If you change your models, remember to run `python manage.py makemigrations` on your host machine before running this command. The backend container's entrypoint script will automatically:
     - Wait for the database to be ready.
     - Apply database migrations.
     - Create a superuser (`username: admin`, `password: My4Dm1n!2025`).
     - Seed the database with sample data.
 
-    - The **React Frontend** will be available at `http://localhost:3000`.
+    - The **React Frontend** will be available at `http://localhost` (on port 80).
     - The **Django API** will be available at `http://localhost:8000`.
+
+4.  **Resetting the Environment:**
+    To completely stop and remove all containers, networks, and the database volume (for a clean start), run the following command from the project root:
+    ```bash
+    docker-compose down -v
+    ```
+    You can then run `docker-compose up --build` to start fresh.

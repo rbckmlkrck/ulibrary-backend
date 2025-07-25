@@ -33,6 +33,9 @@ class Command(BaseCommand):
             self.stdout.write(self.style.WARNING('Clearing existing data (books and non-superuser users)...'))
             Book.objects.all().delete()
             User.objects.filter(is_superuser=False).delete()
+        elif Book.objects.exists() or User.objects.filter(is_superuser=False).exists():
+            self.stdout.write(self.style.SUCCESS('Database already seeded. Skipping.'))
+            return
 
         fake = Faker()
 

@@ -25,11 +25,10 @@ set -e
 # A simple sleep is used here for demonstration. In production, you might
 # use a more robust script like wait-for-it.sh.
 echo "Waiting for database..."
-sleep 35
+sleep 10
 
 # Run Django management commands
 echo "Applying database migrations..."
-python manage.py makemigrations
 python manage.py migrate
 
 echo "Creating superuser..."
@@ -38,7 +37,7 @@ echo "Creating superuser..."
 python manage.py shell <<EOF
 from library.models import User
 if not User.objects.filter(username='admin').exists():
-    User.objects.create_superuser('admin', 'admin@example.com', 'My4Dm1n_P@ssw0rd2025')
+    User.objects.create_superuser('admin', 'admin@example.com', 'My4Dm1n!2025')
     print('Superuser "admin" created.')
 else:
     print('Superuser "admin" already exists.')
