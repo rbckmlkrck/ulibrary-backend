@@ -69,8 +69,24 @@ class Command(BaseCommand):
         # Use an environment variable for the seed password, with a default fallback.
         seed_password = os.environ.get('SEED_USER_PASSWORD', 'password123')
 
-        # --- Create Users ---
-        self.stdout.write(f'Creating {num_users} users...')
+        # --- Create specific test user 'ugreen' ---
+        self.stdout.write("Creating test user 'ugreen'...")
+        if not User.objects.filter(username='ugreen').exists():
+            User.objects.create_user(
+                username='ugreen',
+                email='ugreen@example.com',
+                password='password123',
+                role='student',
+                first_name='Ugreen Test',
+                last_name='Student'
+            )
+            self.stdout.write(self.style.SUCCESS("Successfully created test user 'ugreen'."))
+        else:
+            self.stdout.write(self.style.WARNING("Test user 'ugreen' already exists. Skipping."))
+
+
+        # --- Create Random Users ---
+        self.stdout.write(f'Creating {num_users} random users...')
         created_users_count = 0
         for _ in range(num_users):
             try:

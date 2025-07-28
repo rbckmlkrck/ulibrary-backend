@@ -59,26 +59,6 @@ class User(AbstractUser):
 
     objects = CustomUserManager()
 
-    groups = models.ManyToManyField(
-        "auth.Group",
-        verbose_name=_("groups"),
-        blank=True,
-        help_text=_(
-            "The groups this user belongs to. A user will get all permissions "
-            "granted to each of their groups."
-        ),
-        related_name="library_user_groups",
-        related_query_name="user",
-    )
-    user_permissions = models.ManyToManyField(
-        "auth.Permission",
-        verbose_name=_("user permissions"),
-        blank=True,
-        help_text=_("Specific permissions for this user."),
-        related_name="library_user_permissions",
-        related_query_name="user",
-    )
-
 
 class Book(models.Model):
     """

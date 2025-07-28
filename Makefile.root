@@ -26,6 +26,8 @@
 
 DOCKER_COMPOSE := docker compose
 DOCKER := docker
+LAZYGIT := lazygit
+GIT := /usr/bin/git
 
 .PHONY: all build
 
@@ -51,6 +53,14 @@ stop:
 ps:
 	@echo "Displaying Docker containers..."
 	$(DOCKER) ps
+
+lzgb:
+	@echo "Executing Lazygit - Backend Project..."
+	@cd backend &&	$(LAZYGIT)
+
+lzgf:
+	@echo "Executing Lazygit - Frontend Project..."
+	@cd frontend &&	$(LAZYGIT)
 
 # Clean up containers
 clean:

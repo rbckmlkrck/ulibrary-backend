@@ -23,8 +23,14 @@ COPY . .
 # Make entrypoint script executable
 RUN chmod +x ./entrypoint.sh
 
-# Create a non-root user for security purposes
+# Create a non-root user and group for security
 RUN addgroup --system app && adduser --system --group app
+
+# Create the staticfiles directory and change its ownership so the 'app' user can write to it.
+# This directory will be a mount point for the static_volume.
+RUN mkdir -p /app/staticfiles && chown -R app:app /app/staticfiles
+
+# Switch to the non-root user
 USER app
 
 # Expose the port the app runs on

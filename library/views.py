@@ -90,7 +90,7 @@ class CheckoutViewSet(viewsets.ModelViewSet):
     """
     permission_classes = [IsAuthenticated]
     filter_backends = [filters.SearchFilter]
-    search_fields = ['student__username', 'student__first_name', 'student__last_name', 'book__title']
+    search_fields = ['student__username', 'student__first_name', 'student__last_name', 'book__title', 'book__author']
 
     def get_queryset(self):
         """
@@ -125,6 +125,17 @@ class CheckoutViewSet(viewsets.ModelViewSet):
             return CheckoutLibrarianSerializer
 
         return CheckoutStudentSerializer
+
+    def filter_queryset(self, queryset):
+        """
+        Dynamically sets the search_fields based on the user's role.
+        Students can only search their checkouts by book title or author.
+        """
+        user = self.request.user
+        if user.is_authenticated and user.role == 'student':
+            self.search_fields = ['book__title', 'book__author']
+        # For librarians, the default search_fields will be used.
+        return super().filter_queryset(queryset)
 
     def create(self, request, *args, **kwargs):
         """

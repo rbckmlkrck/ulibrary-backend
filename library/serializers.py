@@ -36,9 +36,27 @@ class BookSerializer(serializers.ModelSerializer):
     Provides a standard representation of Book objects, including all
     relevant fields for listing and management.
     """
+    checked_out_count = serializers.SerializerMethodField()
+    available = serializers.SerializerMethodField()
     class Meta:
         model = Book
-        fields = ['id', 'title', 'author', 'published_year', 'genre', 'stock']
+        fields = ['id', 'title', 'author', 'published_year', 'genre', 'stock', 'checked_out_count', 'available']
+
+    def get_checked_out_count(self, obj):
+        """
+        Calculates the number of times this book is currently checked out.
+        """
+        
+        return obj.checkout_set.filter(return_date__isnull=True).count()
+    
+    def get_available(self, obj):
+        """
+        Calculates the number of books currently available (stock - checked out).
+        """
+        # It's important to call the method to get checked_out_count
+        # and not try to access the serialized field directly from obj
+        checked_out = self.get_checked_out_count(obj)
+        return obj.stock - checked_out
 
 
 class CheckoutStudentSerializer(serializers.ModelSerializer):
