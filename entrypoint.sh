@@ -36,16 +36,24 @@ echo "Creating superuser..."
 # This command uses a Python script to create a superuser non-interactively.
 # It checks if the user already exists to make the script idempotent.
 python manage.py shell <<EOF
+import os
 from library.models import User
 if not User.objects.filter(username='admin').exists():
-    User.objects.create_superuser('admin', 'admin@example.com', 'My4Dm1n!2025')
-    print('Superuser "admin" created.')
+    password = os.environ.get('DJANGO_SUPERUSER_PASSWORD')
+    if not password:
+        raise ValueError("DJANGO_SUPERUSER_PASSWORD environment variable not set")
+    User.objects.create_superuser('admin', 'admin@example.com', password)
+    print(f'Superuser "admin" created.')
 else:
     print('Superuser "admin" already exists.')
 EOF
 
 echo "Seeding database with initial data..."
 python manage.py seed_data --clear
+
+echo "Collecting static files..."
+# The --noinput flag prevents any interactive prompts, and --clear removes old files.
+python manage.py collectstatic --noinput --clear
 
 echo "Database setup complete. Starting server."
 

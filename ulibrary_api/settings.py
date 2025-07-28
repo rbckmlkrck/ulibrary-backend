@@ -29,23 +29,27 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 DEBUG = os.getenv('DEBUG', 'False').lower() in ('true', '1', 't')
 
 # A list of strings representing the host/domain names that this Django site can serve.
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'api', 'cfmapp.com']
+ALLOWED_HOSTS = [host.strip() for host in os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1,api,cfmapp.com,localhost:3000,127.0.0.1:3000').split(',')]
+
 
 # Application definition
 
 # A list of all Django applications that are activated in this Django instance.
 INSTALLED_APPS = [
+    # 3rd Party Apps
+    'grappelli',
+
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+    'whitenoise.runserver_nostatic',  # WhiteNoise for static file serving
+    'corsheaders',  # CORS headers for cross-origin requests
     'django.contrib.staticfiles',
 
-    # 3rd Party Apps
     'rest_framework',
     'rest_framework.authtoken',
-    'corsheaders',
     'drf_spectacular',
     'django_extensions',
 
@@ -56,8 +60,9 @@ INSTALLED_APPS = [
 # A list of middleware to be executed for each request/response.
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'corsheaders.middleware.CorsMiddleware',  # Should be placed high, but after SecurityMiddleware.
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # WhiteNoise middleware for static files
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'corsheaders.middleware.CorsMiddleware', # CORS
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -86,7 +91,7 @@ TEMPLATES = [
 ]
 
 # The entry-point for WSGI-compatible web servers to serve the project.
-WSGI_APPLICATION = 'ulibrary_api.wsgi.application'
+WSGI_APPLICATION = 'ulibrary_api.wsgi.application' 
 
 
 # Database
@@ -134,6 +139,13 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
+# The absolute path to the directory where collectstatic will collect static files for deployment.
+# This is necessary for serving admin static files in production.
+STATIC_ROOT = BASE_DIR / "staticfiles"
+
+# Use Whitenoise's storage backend for compressed static files and caching.
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
@@ -147,7 +159,7 @@ REST_FRAMEWORK = {
     # Default authentication schemes. TokenAuthentication is used for API clients.
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',
-        'rest_framework.authentication.SessionAuthentication',
+        # 'rest_framework.authentication.SessionAuthentication',  # Not needed for API-only apps
     ],
     # Default permission policy. Requires users to be authenticated for all endpoints.
     'DEFAULT_PERMISSION_CLASSES': [
@@ -155,11 +167,20 @@ REST_FRAMEWORK = {
     ],
     # The default schema generator for API documentation.
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+     # Default pagination settings for API views.
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 100,
 }
 
 # CORS Settings - a list of origins that are authorized to make cross-site HTTP requests.
 # Update this to your React app's URL in production.
-CORS_ALLOWED_ORIGINS = os.getenv('CORS_ALLOWED_ORIGINS', "http://localhost:3000,http://127.0.0.1:3000").split(',')
+CORS_ALLOWED_ORIGINS = [origin.strip() for origin in os.getenv('CORS_ALLOWED_ORIGINS', "http://localhost:3000,http://127.0.0.1:3000,http://localhost,http://cfmapp.com").split(',')]
+CORS_ALLOW_CREDENTIALS = True  # Allow cookies to be included in cross-origin requests
+
+# CSRF Trusted Origins - a list of hosts that are trusted for cross-site requests.
+# This is necessary for POST requests (like admin login) to work from your domain.
+CSRF_TRUSTED_ORIGINS = [origin.strip() for origin in os.getenv('CSRF_TRUSTED_ORIGINS', 'http://localhost,http://127.0.0.1,http://cfmapp.com,http://localhost:3000,http://127.0.0.1:3000').split(',')]
+
 
 # drf-spectacular settings for generating OpenAPI schema and Swagger UI.
 SPECTACULAR_SETTINGS = {
@@ -181,3 +202,6 @@ SPECTACULAR_SETTINGS = {
         }
     }
 }
+
+# Grappelli Settings
+GRAPPELLI_ADMIN_TITLE = "ULibrary Administration"

@@ -14,7 +14,7 @@
     # backend/.env
     SECRET_KEY='your-super-secret-key-here'
     DEBUG=True
-    DATABASE_URL='postgres://ulibrary:Ulibrary!2025@localhost:5432/ulibrary_db'
+    DATABASE_URL='postgres://ulibrary:<your_db_password>@localhost:5432/ulibrary_db'
     SEED_USER_PASSWORD='your-secure-seed-password' # Optional: sets the password for seeded users
     CORS_ALLOWED_ORIGINS="http://localhost,http://localhost:3000,http://127.0.0.1:3000"
     ```
@@ -104,11 +104,12 @@ The project is configured to run the full stack (Django backend, React frontend,
 2.  **Create Docker Environment File:** Create a file named `.env.docker` in the `backend` directory. This file will override settings from `.env` for the containerized environment.
     ```.env
     # backend/.env.docker
-    DATABASE_URL=postgres://ulibrary:Ulibrary!2025@db:5432/ulibrary_db # Connects backend to db service
+    DATABASE_URL=postgres://ulibrary:<your_db_password>@db:5432/ulibrary_db # Connects backend to db service
     POSTGRES_DB=ulibrary_db
     POSTGRES_USER=ulibrary
+    POSTGRES_PASSWORD=<your_db_password>
+    DJANGO_SUPERUSER_PASSWORD=<your_admin_password> # Sets the password for the default admin user
     SEED_USER_PASSWORD='your-secure-seed-password' # Optional: sets the password for seeded users
-    POSTGRES_PASSWORD=Ulibrary!2025
     ```
 3.  **Build and run the containers:** From the `backend` directory, run the following command.
     ```bash
@@ -117,7 +118,7 @@ The project is configured to run the full stack (Django backend, React frontend,
     This command uses the copied `docker-compose.yml` file to build and start all services. If you change your models, remember to run `python manage.py makemigrations` on your host machine before running this command. The backend container's entrypoint script will automatically:
     - Wait for the database to be ready.
     - Apply database migrations.
-    - Create a superuser (`username: admin`, `password: My4Dm1n!2025`).
+    - Create a superuser (`username: admin`, password from `DJANGO_SUPERUSER_PASSWORD` env var).
     - Seed the database with sample data.
 
     - The **React Frontend** will be available at `http://localhost` or `http:<your_host_ip/domain_name>` (on port 80).
